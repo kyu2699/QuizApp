@@ -103,15 +103,12 @@ class DrugQuiz:
         if self.current_row < len(self.row_numbers):
             row = self.row_numbers[self.current_row]
             column_a_value = self.sheet.cell(row=row, column=1).value
-            correct_answers = []  # Collect all potential correct answers
-
-            # Loop through all columns after column A (starting from column B)
+            correct_answers = []
             for col in range(2, self.sheet.max_column + 1):
                 cell_value = self.sheet.cell(row=row, column=col).value
                 if cell_value:
                     correct_answers.append(str(cell_value).strip().lower())
 
-            # Check if user's answer matches any of the correct answers
             correct_answer = user_input in correct_answers
 
             self.update_result_and_score(correct_answer, correct_answers)
@@ -133,8 +130,6 @@ class DrugQuiz:
         self.answer_entry.delete(0, tk.END)
 
         self.score_label.config(text=f"Score: {self.score}/{self.total}")
-
-        # Now inside the function:
         previous_question = self.sheet.cell(row=self.row_numbers[self.current_row - 1], column=1).value
         if previous_question is not None:
             correct_answer_display = " or ".join(correct_answers) if correct_answers else "No valid answer"
