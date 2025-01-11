@@ -134,6 +134,7 @@ class DrugQuiz:
 
         self.score_label.config(text=f"Score: {self.score}/{self.total}")
 
+        # Now inside the function:
         previous_question = self.sheet.cell(row=self.row_numbers[self.current_row - 1], column=1).value
         if previous_question is not None:
             correct_answer_display = " or ".join(correct_answers) if correct_answers else "No valid answer"
