@@ -18,15 +18,13 @@ class DrugQuiz:
 
         self.create_ui_components()
 
-        self.current_row = 0  # Track the current row index
+        self.current_row = 0
         self.display_question()
 
-        # Disable the Start button
         self.start_button.config(state="disabled")
 
     def create_ui_components(self):
         """Create all the UI components for the quiz."""
-        # Create header frame for Home and Exit buttons
         self.header_frame = tk.Frame(self.root, bg="#E6E6FA")
         self.header_frame.pack(fill="x", padx=10, pady=10)
         
@@ -55,7 +53,7 @@ class DrugQuiz:
         self.history_text = tk.Label(self.history_frame, text="", font=("Arial", 12), justify="left", fg="white", bg="black")
         self.history_text.pack()
 
-        # Add copyright text in the bottom-right corner
+        # Add copyright text
         self.copyright_label = tk.Label(self.root, text="By yours truly, Kyle Yu for Kyra Lynn", font=("Arial", 8), fg="gray", bg="#E6E6FA")
         self.copyright_label.pack(side="right", padx=10, pady=10)
 
@@ -66,10 +64,7 @@ class DrugQuiz:
         # Exit Button
         self.exit_button = tk.Button(self.root, text="Exit", font=("Arial", 14), command=self.exit_quiz)
         self.exit_button.place(x=100, y=self.root.winfo_height() - 50, anchor="sw")
-
-        # Bind the Enter key to submit the answer
         self.root.bind("<Return>", self.submit_answer_from_key)
-
 
     def display_question(self):
         """Display the next question or complete the quiz if finished."""
@@ -94,20 +89,22 @@ class DrugQuiz:
             f"You have completed the quiz for this section.\nYour score: {self.score}/{self.total}\nWould you like to retry with another sheet or exit?",
         )
         if response == 'yes':
-            self.root.destroy()  # Close the current quiz window
-            main()  # Restart the application
+            self.root.destroy() 
+            main()
         else:
-            self.exit_quiz()  # Exit the application if the user chooses 'No'
-
+            self.exit_quiz()
     def submit_answer(self, event=None):
         """Handle the submission of an answer and check if it's correct."""
+        user_input = self.answer_entry.get().strip().lower()
+        if not user_input:
+            self.result_label.config(text="Please enter an answer!", fg="orange")
+            return
+        
         if self.current_row < len(self.row_numbers):
             row = self.row_numbers[self.current_row]
             column_a_value = self.sheet.cell(row=row, column=1).value
             column_b_value = self.sheet.cell(row=row, column=2).value
             column_c_value = self.sheet.cell(row=row, column=3).value
-            user_input = self.answer_entry.get().strip().lower()
-
             correct_answer = str(column_b_value).strip().lower() == user_input or \
                             str(column_c_value).strip().lower() == user_input
 
@@ -123,7 +120,7 @@ class DrugQuiz:
             self.result_label.config(text="Correct!", fg="green")
             self.score += 1
         else:
-            self.result_label.config(text=f"Wrong!", fg="red")
+            self.result_label.config(text="Wrong!", fg="red")
 
         self.total += 1
         self.current_row += 1
@@ -132,14 +129,22 @@ class DrugQuiz:
         self.score_label.config(text=f"Score: {self.score}/{self.total}")
 
         previous_question = self.sheet.cell(row=self.row_numbers[self.current_row - 1], column=1).value
-        correct_answer_display = column_b_value if correct_answer else f"{column_b_value} or {column_c_value}"
-        history_content = f"Q: {previous_question}\nCorrect Answer: {correct_answer_display}\n"
-        self.history_text.config(text=history_content)
+        if previous_question is not None:
+            if column_b_value is None:
+                correct_answer_display = column_c_value
+            elif column_c_value is None:
+                correct_answer_display = column_b_value
+            else:
+                correct_answer_display =   column_b_value + " or " + column_c_value
+            history_content = f"Q: {previous_question}\nCorrect Answer: {correct_answer_display}\n"
+            self.history_text.config(text=history_content)
+        else:
+            self.history_text.config(text="")
 
     def go_home(self):
         """Return to sheet selection window."""
-        self.root.destroy()  # Close the current quiz window
-        main()  # Restart the quiz app to go back to sheet selection
+        self.root.destroy() 
+        main()
 
     def exit_quiz(self):
         """Exit the quiz application."""
@@ -202,7 +207,7 @@ def main():
     description_label = tk.Label(root, text="This quiz will test your knowledge of drug name vocabulary.\nYou will be asked to provide the Brand/Generic name for various drugs.\nLet's see how many you can get right!", font=("Arial", 16), justify="center", padx=20, bg="#E6E6FA")
     description_label.pack(pady=20)
 
-    instructions_label = tk.Label(root, text="Instructions:\n1. Choose a sheet with drug names.\n2. Answer each question with the correct Brand/Generic name.\n3. You can exit anytime by clicking 'Exit'.\n4. Your score will be shown after the quiz.", font=("Arial", 14), justify="left", padx=20, bg="#E6E6FA")
+    instructions_label = tk.Label(root, text="Instructions:\n1. Choose a sheet with drug names.\n2. Answer each question with the correct Brand/Generic name.\n3. You can exit anytime by clicking 'Exit'.\n4. Your score is displayed as you progress.", font=("Arial", 14), justify="left", padx=20, bg="#E6E6FA")
     instructions_label.pack(pady=20)
 
     start_button = tk.Button(root, text="Start Quiz", font=("Arial", 20), command=lambda: quiz_app.prompt_user_for_sheet(root, start_button), bg="#E6E6FA")
