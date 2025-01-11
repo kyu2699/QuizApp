@@ -120,10 +120,10 @@ class DrugQuiz:
     def update_result_and_score(self, correct_answer, column_b_value, column_c_value):
         """Update the result label, score, history, and move to the next question."""
         if correct_answer:
-            self.result_label.config(text="Correct!")
+            self.result_label.config(text="Correct!", fg="green")
             self.score += 1
         else:
-            self.result_label.config(text=f"Wrong!")
+            self.result_label.config(text=f"Wrong!", fg="red")
 
         self.total += 1
         self.current_row += 1
