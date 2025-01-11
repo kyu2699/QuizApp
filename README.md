@@ -1,5 +1,4 @@
 # ``` Drug Naming Quiz```
-Overview
 The Drug Naming Quiz is an educational application that tests users' knowledge of drug's Brand/Generic name. The user is presented with a drug name and must identify its corresponding Brand/Generic name. The quiz is powered by Python, utilizing Tkinter for the user interface and OpenPyXL for reading drug data from an Excel file.
 
 ## Features
@@ -14,12 +13,14 @@ The Drug Naming Quiz is an educational application that tests users' knowledge o
 2. Tkinter (comes pre-installed with Python)
 3. OpenPyXL (for working with Excel files)
 
+
 ## Installation
-1. Install OpenPyXL:
-- bash
-- Copy code
-- pip install openpyxl
-- Prepare the Excel file: The quiz relies on an Excel file (e.g., drugnames.xlsx) with the following structure:
+1. **Install OpenPyXL**:
+   To install the required OpenPyXL library, run the following command:
+   ```bash
+   pip install openpyxl
+
+The quiz relies on an Excel file (e.g., drugnames.xlsx) with the following structure:
 
 - Column A: Drug Name
 - Column B: Brand Name
