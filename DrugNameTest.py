@@ -99,22 +99,28 @@ class DrugQuiz:
         if not user_input:
             self.result_label.config(text="Please enter an answer!", fg="orange")
             return
-        
+
         if self.current_row < len(self.row_numbers):
             row = self.row_numbers[self.current_row]
             column_a_value = self.sheet.cell(row=row, column=1).value
-            column_b_value = self.sheet.cell(row=row, column=2).value
-            column_c_value = self.sheet.cell(row=row, column=3).value
-            correct_answer = str(column_b_value).strip().lower() == user_input or \
-                            str(column_c_value).strip().lower() == user_input
+            correct_answers = []  # Collect all potential correct answers
 
-            self.update_result_and_score(correct_answer, column_b_value, column_c_value)
+            # Loop through all columns after column A (starting from column B)
+            for col in range(2, self.sheet.max_column + 1):
+                cell_value = self.sheet.cell(row=row, column=col).value
+                if cell_value:
+                    correct_answers.append(str(cell_value).strip().lower())
+
+            # Check if user's answer matches any of the correct answers
+            correct_answer = user_input in correct_answers
+
+            self.update_result_and_score(correct_answer, correct_answers)
             self.display_question()
 
         else:
             self.show_final_score()
 
-    def update_result_and_score(self, correct_answer, column_b_value, column_c_value):
+    def update_result_and_score(self, correct_answer, correct_answers):
         """Update the result label, score, history, and move to the next question."""
         if correct_answer:
             self.result_label.config(text="Correct!", fg="green")
@@ -130,13 +136,8 @@ class DrugQuiz:
 
         previous_question = self.sheet.cell(row=self.row_numbers[self.current_row - 1], column=1).value
         if previous_question is not None:
-            if column_b_value is None:
-                correct_answer_display = column_c_value
-            elif column_c_value is None:
-                correct_answer_display = column_b_value
-            else:
-                correct_answer_display =   column_b_value + " or " + column_c_value
-            history_content = f"Q: {previous_question}\nCorrect Answer: {correct_answer_display}\n"
+            correct_answer_display = " or ".join(correct_answers) if correct_answers else "No valid answer"
+            history_content = f"Q: {previous_question}\nCorrect Answer(s): {correct_answer_display}\n"
             self.history_text.config(text=history_content)
         else:
             self.history_text.config(text="")
@@ -153,7 +154,6 @@ class DrugQuiz:
     def submit_answer_from_key(self, event):
         """Allow submission of answer using the Enter key."""
         self.submit_answer()
-
 
 class ExcelQuiz:
     def __init__(self, file_name):
