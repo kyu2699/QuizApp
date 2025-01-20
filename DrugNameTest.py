@@ -4,9 +4,11 @@ import random
 import tkinter as tk
 from tkinter import messagebox
 import sys
+import subprocess
+
 
 class DrugQuiz:
-    def __init__(self, sheet_name, sheet, root, start_button):
+    def __init__(self, sheet_name, sheet, root, start_button, excel_file):
         self.sheet_name = sheet_name
         self.sheet = sheet
         self.score = 0
@@ -15,6 +17,7 @@ class DrugQuiz:
         self.start_button = start_button
         self.row_numbers = list(range(2, self.sheet.max_row + 1))
         random.shuffle(self.row_numbers)
+        self.excel_file = excel_file
 
         self.create_ui_components()
 
@@ -64,6 +67,21 @@ class DrugQuiz:
         # Exit Button
         self.exit_button = tk.Button(self.root, text="Exit", font=("Arial", 14), command=self.exit_quiz)
         self.exit_button.place(x=100, y=self.root.winfo_height() - 50, anchor="sw")
+
+        # Edit Answer Key Button
+        self.edit_button = tk.Button(self.root, 
+                                    text="Edit Answer Key", 
+                                    font=("Arial", 14), 
+                                    command=self.edit_answer_key, 
+                                    fg="RED",
+                                    relief="solid",
+                                    bd=4,
+                                    highlightthickness=4,
+                                    highlightbackground="red",
+                                    highlightcolor="red")
+        self.edit_button.place(x=200, y=self.root.winfo_height() - 50, anchor="sw")
+
+
         self.root.bind("<Return>", self.submit_answer_from_key)
 
     def display_question(self):
@@ -93,6 +111,7 @@ class DrugQuiz:
             main()
         else:
             self.exit_quiz()
+
     def submit_answer(self, event=None):
         """Handle the submission of an answer and check if it's correct."""
         user_input = self.answer_entry.get().strip().lower()
@@ -151,6 +170,27 @@ class DrugQuiz:
         """Allow submission of answer using the Enter key."""
         self.submit_answer()
 
+    def edit_answer_key(self):
+        """Open the Excel sheet for editing."""
+        try:
+            # Get the absolute path of the Excel file
+            if getattr(sys, 'frozen', False):
+                base_path = os.path.dirname(sys.executable)
+            else:
+                base_path = os.path.dirname(os.path.abspath(__file__))
+            file_path = os.path.join(base_path, self.excel_file)
+            if sys.platform == "win32":
+                os.startfile(file_path)
+            elif sys.platform == "darwin":
+                subprocess.Popen(["open", file_path])
+            else:
+                subprocess.Popen(["xdg-open", file_path])
+
+            messagebox.showinfo("Info", "You can now edit the answer key. Make sure to save and close the file before returning to the quiz.")
+        except Exception as e:
+            messagebox.showerror("Error", f"An error occurred while trying to open the Excel file: {e}")
+
+
 class ExcelQuiz:
     def __init__(self, file_name):
         self.file_name = file_name
@@ -171,7 +211,6 @@ class ExcelQuiz:
             sys.exit(1)
         return openpyxl.load_workbook(file_path)
 
-
     def prompt_user_for_sheet(self, root, start_button):
         """Prompt the user to select a sheet for the quiz."""
         def on_sheet_selected():
@@ -179,7 +218,7 @@ class ExcelQuiz:
             if sheet_choice:
                 sheet_name = self.sheets[sheet_choice[0]]
                 sheet = self.workbook[sheet_name]
-                DrugQuiz(sheet_name, sheet, root, start_button)
+                DrugQuiz(sheet_name, sheet, root, start_button, self.file_name)
                 sheet_selection_window.destroy()
 
         sheet_selection_window = tk.Toplevel(root)
