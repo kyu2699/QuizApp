@@ -196,7 +196,7 @@ class ExcelQuiz:
 
 def main():
     """Main entry point to start the quiz application."""
-    quiz_app = ExcelQuiz()
+    quiz_app = ExcelQuiz(file_name="drugnames.xlsx")
 
     root = tk.Tk()
     root.title("Drug Quiz")
