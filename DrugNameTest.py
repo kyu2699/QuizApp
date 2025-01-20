@@ -157,12 +157,20 @@ class ExcelQuiz:
         self.workbook = self.load_excel(file_name)
         self.sheets = self.workbook.sheetnames
 
-    def load_excel(self, file_name):
+    def load_excel(self, file_name='drugnames.xlsx'):
         """Load the Excel file."""
-        if not os.path.exists(file_name):
+        if getattr(sys, 'frozen', False):
+            base_path = os.path.dirname(sys.executable)
+        else: 
+            base_path = os.path.dirname(os.path.abspath(__file__))
+
+        file_path = os.path.join(base_path, file_name)
+
+        if not os.path.exists(file_path):
             messagebox.showerror("Error", f"File '{file_name}' not found.")
             sys.exit(1)
-        return openpyxl.load_workbook(file_name)
+        return openpyxl.load_workbook(file_path)
+
 
     def prompt_user_for_sheet(self, root, start_button):
         """Prompt the user to select a sheet for the quiz."""
@@ -188,8 +196,7 @@ class ExcelQuiz:
 
 def main():
     """Main entry point to start the quiz application."""
-    file_name = 'C:/Users/yukyl/Documents/kyu2699/Personal/DrugNameQuiz/resources/drugnames.xlsx'
-    quiz_app = ExcelQuiz(file_name)
+    quiz_app = ExcelQuiz()
 
     root = tk.Tk()
     root.title("Drug Quiz")
